@@ -1,0 +1,449 @@
+/* === REGISTER.CSS === */
+
+
+/* === ESTILOS REGISTER === */
+
+.container-register {
+  display: flex;
+  width: 80%;
+  height: calc(100vh - 30px);
+  background: linear-gradient(180deg, #0F2358 0%, #041236 100%);
+  border-radius: 12px;
+  border: 2px solid #27489E;
+  box-shadow: 10px 10px 30px rgba(89, 16, 108, 0.3), -10px -10px 30px rgba(89, 16, 108, 0.3);
+  overflow: hidden;
+  animation: fadeScaleUp 1s ease forwards;
+}
+
+.register {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex: 1;
+}
+
+.form-register{
+      display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.register-form {
+  width: 100%;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  padding: 12px 40px;
+  color: #fff;
+  overflow-y: auto;
+}
+
+.register-form .logo {
+    margin-bottom: 5px;
+  font-size: 2.4rem;
+  font-family: 'koh santepheap', sans-serif;
+  font-weight: bold;
+  color: #ff2aa4;
+  animation: fadeIn 0.8s ease forwards;
+  animation-delay: 0.3s;
+  opacity: 0;
+}
+
+.register-form .title {
+    margin-bottom: 10px;
+  font-size: 1.8rem;
+  font-family: 'koh santepheap', sans-serif;
+  font-weight: 500;
+  animation: fadeIn 0.8s ease forwards;
+  animation-delay: 0.6s;
+  opacity: 0;
+}
+
+.register-form .form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 1rem 0;
+}
+
+.input-group-register {
+  display: flex;
+  flex-direction: column;
+  animation: fadeInUp 0.8s ease forwards;
+  animation-delay: 0.9s;
+  opacity: 0;
+}
+
+.input-group-register label {
+  margin-bottom: 0.4rem;
+  font-size: 1rem;
+  color: rgba(234, 240, 255, 0.65);
+  animation: fadeInUp 1s ease;
+}
+
+.input-group-wrapper-register {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0.5rem;
+  color: #fff;
+  background: rgba(12, 18, 78, 0.9);
+  border-radius: 8px;
+  border: 1px solid #27489E;
+  outline: none;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.input-group-wrapper-register::before {
+  position: absolute;
+  content: "";
+  left: 0;
+  bottom: 0;
+  width: 0;
+  height: 2px;
+  background: linear-gradient(90deg, #641fd2, #27489E);
+  transition: width 0.4s ease;
+}
+
+.input-group-wrapper-register:focus-within::before {
+  width: 100%;
+}
+
+.input-group-wrapper-register:hover {
+  background: rgba(12, 18, 78, 1);
+  box-shadow: 0 0 12px rgba(174, 31, 210, 0.4);
+  transform: translateY(-2px);
+}
+
+.input-group-wrapper-register input,
+.input-group-wrapper-register select {
+  width: 100%;
+  font-size: 0.9rem;
+  color: #fff;
+  background: transparent;
+  border: none;
+  outline: none;
+  padding: 0;
+}
+
+.input-group-wrapper-register input::placeholder {
+  color: rgba(234, 240, 255, 0.45);
+}
+
+.form-options-register {
+  display: flex;
+  align-items: center;
+  margin-top: 0.6rem;
+  font-size: 1rem;
+  animation: fadeInUp 0.8s ease forwards;
+  animation-delay: 1.1s;
+  opacity: 0;
+}
+
+.checkbox-wrapper input[type="checkbox"] {
+  display: none;
+  visibility: hidden;
+}
+
+.checkbox-wrapper .cbx {
+  display: inline-flex;
+  align-items: center;
+  cursor: pointer;
+  user-select: none;
+  gap: 8px;
+}
+
+.checkbox-wrapper .cbx span {
+  display: inline-block;
+  vertical-align: middle;
+  transform: translate3d(0, 0, 0);
+}
+
+.checkbox-wrapper .cbx span:first-child {
+  position: relative;
+  width: 18px;
+  height: 18px;
+  border-radius: 3px;
+  transform: scale(1);
+  border: 1px solid #9098a9;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.checkbox-wrapper .cbx span:first-child svg {
+  position: absolute;
+  top: 3px;
+  left: 2px;
+  fill: none;
+  stroke: #ffffff;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 16px;
+  stroke-dashoffset: 16px;
+  transition: all 0.3s ease;
+  transition-delay: 0.1s;
+  transform: translate3d(0, 0, 0);
+}
+
+.checkbox-wrapper .cbx span:first-child::before {
+  content: "";
+  width: 100%;
+  height: 100%;
+  background: #506eec;
+  display: block;
+  transform: scale(0);
+  opacity: 1;
+  border-radius: 50%;
+}
+
+.checkbox-wrapper .cbx span:last-child {
+  padding-left: 8px;
+  color: rgba(234, 240, 255, 0.65);
+}
+
+.checkbox-wrapper .cbx:hover span:first-child {
+  border-color: #506eec;
+}
+
+.checkbox-wrapper .inp-cbx:checked + .cbx span:first-child {
+  background: #506eec;
+  border-color: #506eec;
+  animation: wave 0.4s ease;
+}
+
+.checkbox-wrapper .inp-cbx:checked + .cbx span:first-child svg {
+  stroke-dashoffset: 0;
+}
+
+.checkbox-wrapper .inp-cbx:checked + .cbx span:first-child::before {
+  transform: scale(3.5);
+  opacity: 0;
+  transition: all 0.6s ease;
+}
+
+.remember-register {
+  position: relative;
+  color: #AE1FD2;
+  text-decoration: none;
+  transition: all 0.3s ease;
+}
+
+.remember-register::after {
+  position: absolute;
+  content: "";
+  left: 0;
+  bottom: -2px;
+  width: 0;
+  height: 2px;
+  background: #AE1FD2;
+  transition: width 0.3s ease;
+}
+
+.remember-register:hover {
+  color: #bd28e2;
+}
+
+.remember-register:hover::after {
+  width: 100%;
+}
+
+.action-register {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 1rem;
+  animation: fadeInUp 0.8s ease forwards;
+  animation-delay: 1.3s;
+  opacity: 0;
+}
+
+.register-btn {
+  position: relative;
+  width: 40%;
+  padding: 0.6rem;
+  font-size: 1rem;
+  color: #fff;
+  background: rgba(12, 18, 78, 0.9);
+  border-radius: 8px;
+  border: 1px solid #27489E;
+  transition: all 0.3s ease;
+  overflow: hidden;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.register-btn::before {
+  position: absolute;
+  content: "";
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  transition: left 0.7s ease;
+}
+
+.register-btn:hover::before {
+  left: 100%;
+}
+
+.register-btn:hover {
+  background: rgba(12, 18, 78, 1);
+  box-shadow: 0 0 14px rgba(174, 31, 210, 0.5);
+  transform: scale(1.05);
+}
+
+.register-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.form-detail-register {
+  display: flex;
+  justify-content: center;
+  gap: 0.4rem;
+  font-size: 1rem;
+  animation: fadeIn 0.8s ease forwards;
+  animation-delay: 1.5s;
+  opacity: 0;
+  color: rgba(234, 240, 255, 0.65);
+  margin-top: 10px;
+}
+
+.login-link {
+  position: relative;
+  color: #AE1FD2;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.login-link::after {
+  position: absolute;
+  content: "";
+  left: 0;
+  bottom: -2px;
+  width: 0;
+  height: 2px;
+  background: #AE1FD2;
+  transition: width 0.3s ease;
+}
+
+.login-link:hover {
+  color: #bd28e2;
+}
+
+.login-link:hover::after {
+  width: 100%;
+}
+
+.img-register {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 1.4;
+  background: #041236;
+}
+
+.img-register::after {
+  position: absolute;
+  content: "";
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 1, 88, 0.5);
+  z-index: 1;
+}
+
+.img-register img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+@media (max-width: 768px) {
+  .container-register {
+    width: 95%;
+    height: auto;
+    flex-direction: column;
+  }
+
+  .register {
+    width: 100%;
+  }
+
+  .register-form {
+    padding: 30px 20px;
+  }
+
+  .img-register {
+    display: none;
+  }
+
+  .register-form .logo {
+    font-size: 1.8rem;
+  }
+
+  .register-form .title {
+    font-size: 1.4rem;
+  }
+
+  .register-btn {
+    width: 60%;
+  }
+}
+
+/* Scrollbar personalizada */
+.register-form::-webkit-scrollbar {
+  width: 8px;
+}
+
+.register-form::-webkit-scrollbar-track {
+  background: rgba(12, 18, 78, 0.3);
+}
+
+.register-form::-webkit-scrollbar-thumb {
+  background: #27489E;
+  border-radius: 4px;
+}
+
+.register-form::-webkit-scrollbar-thumb:hover {
+  background: #AE1FD2;
+}
+/* Animaciones (heredadas del login.css) */
+@keyframes pageLoad {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes fadeScaleUp {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeInLeft {
+  from { opacity: 0; transform: translateX(-20px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes wave {
+  0% { transform: scale(0.95); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+}
