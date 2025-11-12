@@ -20,9 +20,13 @@ router.post(
     { name: "imagen", maxCount: 1 },
   ]),
   (req, res) => {
-    const { nombre, url_sonido, url_img } = req.body
+    const { nombre, url_sonido, url_img, user_tipo } = req.body
 
-    // Usar archivos subidos o URLs proporcionadas
+    // Verificar que solo admin pueda crear
+    if (user_tipo !== "admin") {
+      return res.status(403).json({ error: "Solo administradores pueden crear sonidos institucionales" })
+    }
+
     const audioUrl = req.files?.audio ? `http://localhost:3000/uploads/${req.files.audio[0].filename}` : url_sonido
 
     const imagenUrl = req.files?.imagen ? `http://localhost:3000/uploads/${req.files.imagen[0].filename}` : url_img
@@ -50,10 +54,14 @@ router.put(
     { name: "imagen", maxCount: 1 },
   ]),
   (req, res) => {
-    const { nombre, url_sonido, url_img } = req.body
+    const { nombre, url_sonido, url_img, user_tipo } = req.body
     const { id } = req.params
 
-    // Usar archivos subidos o URLs proporcionadas
+    // Verificar que solo admin pueda actualizar
+    if (user_tipo !== "admin") {
+      return res.status(403).json({ error: "Solo administradores pueden editar sonidos institucionales" })
+    }
+
     const audioUrl = req.files?.audio ? `http://localhost:3000/uploads/${req.files.audio[0].filename}` : url_sonido
 
     const imagenUrl = req.files?.imagen ? `http://localhost:3000/uploads/${req.files.imagen[0].filename}` : url_img
@@ -70,9 +78,14 @@ router.put(
   },
 )
 
-// Eliminar sonido institucional
 router.delete("/:id", (req, res) => {
   const { id } = req.params
+  const { user_tipo } = req.body
+
+  // Verificar que solo admin pueda eliminar
+  if (user_tipo !== "admin") {
+    return res.status(403).json({ error: "Solo administradores pueden eliminar sonidos institucionales" })
+  }
 
   db.run("DELETE FROM sonidos_institucionales WHERE id_sonidos_institucionales = ?", [id], (err) => {
     if (err) {

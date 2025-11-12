@@ -246,4 +246,4 @@ function Auth({ onLogin, apiUrl }) {
   )
 }
 
-export default Auth
+export default Auth

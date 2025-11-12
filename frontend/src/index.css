@@ -1,12 +1,14 @@
 * {
   margin: 0;
   padding: 0;
-  font-family: 'roboto';
   box-sizing: border-box;
 }
 
 body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", sans-serif;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   min-height: 100vh;
+  color: #333;
 }
 
 #root {
@@ -329,4 +331,442 @@ body {
   padding: 40px;
   color: #667eea;
   font-size: 18px;
+}
+
+/* Estilos para el modal expandido de programas */
+.modal-content-large {
+  background: white;
+  padding: 40px;
+  border-radius: 16px;
+  max-width: 900px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.programa-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding-bottom: 20px;
+  border-bottom: 2px solid #e0e0e0;
+  gap: 20px;
+}
+
+.programa-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+/* Cuadrícula de sonidos */
+.sonidos-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 15px;
+  margin-top: 15px;
+}
+
+.sonido-card {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 12px;
+  padding: 20px;
+  text-align: center;
+  transition: all 0.3s;
+  cursor: pointer;
+  border: 2px solid transparent;
+  color: white;
+}
+
+.sonido-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+  border-color: #ffffff;
+}
+
+.sonido-icon {
+  font-size: 40px;
+  margin-bottom: 10px;
+}
+
+.sonido-card h4 {
+  font-size: 14px;
+  font-weight: 600;
+  margin: 10px 0;
+  color: white;
+  word-wrap: break-word;
+}
+
+.sonido-actions {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 15px;
+}
+
+.btn-icon {
+  background: rgba(255, 255, 255, 0.2);
+  border: 2px solid white;
+  color: white;
+  width: 35px;
+  height: 35px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s;
+  font-weight: bold;
+}
+
+.btn-icon:hover {
+  background: white;
+  color: #667eea;
+  transform: scale(1.1);
+}
+
+.play-btn:hover {
+  color: #28a745;
+}
+
+.delete-btn:hover {
+  color: #dc3545;
+}
+
+/* Agregando estilo para botón de editar */
+.edit-btn:hover {
+  color: #ffc107;
+}
+
+/* Lista de sonidos para agregar */
+.sonidos-list {
+  max-height: 300px;
+  overflow-y: auto;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 10px;
+}
+
+.sonido-list-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px;
+  background: #f8f9fa;
+  border-radius: 6px;
+  margin-bottom: 8px;
+  transition: all 0.2s;
+}
+
+.sonido-list-item:hover {
+  background: #e9ecef;
+  transform: translateX(5px);
+}
+
+.empty-state-small {
+  text-align: center;
+  padding: 30px;
+  color: #999;
+  background: #f8f9fa;
+  border-radius: 8px;
+  border: 2px dashed #e0e0e0;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .modal-content-large {
+    padding: 20px;
+    max-width: 95%;
+  }
+
+  .programa-header {
+    flex-direction: column;
+  }
+
+  .programa-actions {
+    width: 100%;
+  }
+
+  .sonidos-grid {
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 10px;
+  }
+}
+
+/* Agregando estilos para imagen de sonido */
+.sonido-img {
+  width: 100%;
+  height: 100px;
+  object-fit: cover;
+  border-radius: 8px;
+  margin-bottom: 10px;
+}
+
+/* Estilo para botón de reproducción activo */
+.play-btn.playing {
+  background: white;
+  color: #667eea;
+  animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+}
+
+/* Panel de controles de audio avanzados */
+.audio-controls-panel {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 16px;
+  padding: 25px;
+  margin-top: 30px;
+  color: white;
+  box-shadow: 0 8px 24px rgba(102, 126, 234, 0.3);
+}
+
+.audio-progress-container {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.time-display {
+  font-size: 13px;
+  font-weight: 600;
+  min-width: 45px;
+  text-align: center;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.audio-progress-bar {
+  flex: 1;
+  height: 8px;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.3);
+  outline: none;
+  cursor: pointer;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.audio-progress-bar::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: white;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  transition: all 0.2s;
+}
+
+.audio-progress-bar::-webkit-slider-thumb:hover {
+  transform: scale(1.2);
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.3);
+}
+
+.audio-progress-bar::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: white;
+  cursor: pointer;
+  border: none;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  transition: all 0.2s;
+}
+
+.audio-progress-bar::-moz-range-thumb:hover {
+  transform: scale(1.2);
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.3);
+}
+
+.audio-controls {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 25px;
+}
+
+.control-btn {
+  background: rgba(255, 255, 255, 0.2);
+  border: 2px solid white;
+  color: white;
+  padding: 10px 20px;
+  border-radius: 25px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  transition: all 0.3s;
+  white-space: nowrap;
+}
+
+.control-btn:hover {
+  background: white;
+  color: #667eea;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(255, 255, 255, 0.3);
+}
+
+.main-play-btn {
+  padding: 12px 30px;
+  font-size: 16px;
+  background: white;
+  color: #667eea;
+}
+
+.main-play-btn:hover {
+  background: rgba(255, 255, 255, 0.9);
+  transform: scale(1.05);
+}
+
+.audio-settings {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding-top: 20px;
+  border-top: 2px solid rgba(255, 255, 255, 0.2);
+}
+
+.setting-group {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.setting-group label {
+  font-weight: 600;
+  min-width: 100px;
+  font-size: 14px;
+}
+
+.setting-group span {
+  min-width: 45px;
+  text-align: right;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.volume-slider {
+  flex: 1;
+  height: 6px;
+  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.3);
+  outline: none;
+  cursor: pointer;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.volume-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: white;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+  transition: all 0.2s;
+}
+
+.volume-slider::-webkit-slider-thumb:hover {
+  transform: scale(1.2);
+}
+
+.volume-slider::-moz-range-thumb {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: white;
+  cursor: pointer;
+  border: none;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+  transition: all 0.2s;
+}
+
+.volume-slider::-moz-range-thumb:hover {
+  transform: scale(1.2);
+}
+
+.speed-buttons {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.speed-btn {
+  background: rgba(255, 255, 255, 0.2);
+  border: 2px solid rgba(255, 255, 255, 0.5);
+  color: white;
+  padding: 6px 14px;
+  border-radius: 20px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+  transition: all 0.3s;
+}
+
+.speed-btn:hover {
+  background: rgba(255, 255, 255, 0.3);
+  border-color: white;
+}
+
+.speed-btn.active {
+  background: white;
+  color: #667eea;
+  border-color: white;
+}
+
+/* Responsive para controles de audio */
+@media (max-width: 768px) {
+  .audio-controls-panel {
+    padding: 20px;
+  }
+
+  .audio-controls {
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .control-btn {
+    padding: 8px 15px;
+    font-size: 12px;
+  }
+
+  .main-play-btn {
+    padding: 10px 20px;
+    font-size: 14px;
+  }
+
+  .setting-group {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .setting-group label {
+    min-width: auto;
+  }
+
+  .volume-slider {
+    width: 100%;
+  }
+
+  .speed-buttons {
+    width: 100%;
+  }
+
+  .speed-btn {
+    flex: 1;
+    min-width: 60px;
+  }
 }

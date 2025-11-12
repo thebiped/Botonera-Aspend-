@@ -1,11 +1,25 @@
 const express = require("express")
 const router = express.Router()
 
-// === OBTENER TODOS LOS PROGRAMAS ===
 router.get("/", (req, res) => {
   const db = req.db
+  const { id_usuario } = req.query
 
-  db.all(`SELECT * FROM programas`, [], (err, programas) => {
+  let query = "SELECT * FROM programas"
+  let params = []
+
+  // Si se proporciona id_usuario, filtrar por ese usuario
+  if (id_usuario) {
+    query = `
+      SELECT p.* 
+      FROM programas p
+      INNER JOIN programa_usuario pu ON p.id_programa = pu.id_programa
+      WHERE pu.id_usuario = ?
+    `
+    params = [id_usuario]
+  }
+
+  db.all(query, params, (err, programas) => {
     if (err) return res.status(500).json({ error: "Error al obtener programas" })
     res.json(programas)
   })
@@ -41,13 +55,17 @@ router.get("/:id/sonidos", (req, res) => {
   })
 })
 
-// === CREAR UN NUEVO PROGRAMA ===
 router.post("/", (req, res) => {
   const db = req.db
-  const { nombre, descripcion, horario } = req.body
+  const { nombre, descripcion, horario, user_tipo } = req.body
 
   if (!nombre) {
     return res.status(400).json({ error: "El nombre es requerido" })
+  }
+
+  // Verificar que solo admin pueda crear
+  if (user_tipo !== "admin") {
+    return res.status(403).json({ error: "Solo administradores pueden crear programas" })
   }
 
   db.run(
@@ -80,20 +98,29 @@ router.put("/:id", (req, res) => {
   )
 })
 
-// === ELIMINAR UN PROGRAMA ===
 router.delete("/:id", (req, res) => {
   const db = req.db
   const { id } = req.params
+  const { user_tipo } = req.query
 
-  // Primero eliminar las relaciones en programa_sonidos
+  // Verificar que solo admin pueda eliminar
+  if (user_tipo !== "admin") {
+    return res.status(403).json({ error: "Solo administradores pueden eliminar programas" })
+  }
+
+  // Primero eliminar las relaciones
   db.run(`DELETE FROM programa_sonidos WHERE id_programa = ?`, [id], (err) => {
-    if (err) return res.status(500).json({ error: "Error al eliminar relaciones" })
+    if (err) return res.status(500).json({ error: "Error al eliminar relaciones de sonidos" })
 
-    // Luego eliminar el programa
-    db.run(`DELETE FROM programas WHERE id_programa = ?`, [id], function (err) {
-      if (err) return res.status(500).json({ error: "Error al eliminar programa" })
-      if (this.changes === 0) return res.status(404).json({ error: "Programa no encontrado" })
-      res.json({ mensaje: "Programa eliminado correctamente" })
+    db.run(`DELETE FROM programa_usuario WHERE id_programa = ?`, [id], (err) => {
+      if (err) return res.status(500).json({ error: "Error al eliminar relaciones de usuarios" })
+
+      // Luego eliminar el programa
+      db.run(`DELETE FROM programas WHERE id_programa = ?`, [id], function (err) {
+        if (err) return res.status(500).json({ error: "Error al eliminar programa" })
+        if (this.changes === 0) return res.status(404).json({ error: "Programa no encontrado" })
+        res.json({ mensaje: "Programa eliminado correctamente" })
+      })
     })
   })
 })
@@ -126,6 +153,54 @@ router.delete("/:id/sonidos/:id_sonido", (req, res) => {
     if (err) return res.status(500).json({ error: "Error al eliminar sonido del programa" })
     if (this.changes === 0) return res.status(404).json({ error: "Relación no encontrada" })
     res.json({ mensaje: "Sonido eliminado del programa correctamente" })
+  })
+})
+
+router.post("/:id/usuarios", (req, res) => {
+  const db = req.db
+  const { id } = req.params
+  const { id_usuario } = req.body
+
+  if (!id_usuario) {
+    return res.status(400).json({ error: "El id_usuario es requerido" })
+  }
+
+  db.run(`INSERT INTO programa_usuario (id_programa, id_usuario) VALUES (?, ?)`, [id, id_usuario], function (err) {
+    if (err) {
+      return res.status(500).json({ error: "Error al asignar programa al usuario" })
+    }
+    res.json({
+      mensaje: "Programa asignado al usuario correctamente",
+      id: this.lastID,
+    })
+  })
+})
+
+router.delete("/:id/usuarios/:id_usuario", (req, res) => {
+  const db = req.db
+  const { id, id_usuario } = req.params
+
+  db.run(`DELETE FROM programa_usuario WHERE id_programa = ? AND id_usuario = ?`, [id, id_usuario], function (err) {
+    if (err) return res.status(500).json({ error: "Error al desasignar programa del usuario" })
+    if (this.changes === 0) return res.status(404).json({ error: "Asignación no encontrada" })
+    res.json({ mensaje: "Programa desasignado del usuario correctamente" })
+  })
+})
+
+router.get("/:id/usuarios", (req, res) => {
+  const db = req.db
+  const { id } = req.params
+
+  const query = `
+    SELECT u.id_usuario, u.n_usuario, u.gmail, u.tipo
+    FROM usuario u
+    INNER JOIN programa_usuario pu ON u.id_usuario = pu.id_usuario
+    WHERE pu.id_programa = ?
+  `
+
+  db.all(query, [id], (err, usuarios) => {
+    if (err) return res.status(500).json({ error: "Error al obtener usuarios del programa" })
+    res.json(usuarios)
   })
 })
 

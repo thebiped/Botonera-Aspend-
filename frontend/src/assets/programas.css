@@ -1,0 +1,460 @@
+/* Programas Styles */
+.programas-container {
+  width: 100%;
+  min-height: 100vh;
+  padding: 18px 16px;
+  color: #e4e4e4;
+}
+
+.programas-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid rgba(128, 126, 255, 0.2);
+}
+
+.programas-header h2 {
+  font-weight: 600;
+  font-size: 24px;
+  color: #e4e4e4;
+}
+
+.programas-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 25px;
+}
+
+.programa-card {
+  background: linear-gradient(
+    to bottom right,
+    rgba(75, 30, 133, 1),
+    rgba(75, 30, 133, 0.01)
+  );
+  border-radius: 10px;
+  box-shadow: 0 0 12px rgba(75, 30, 133, 0.3),
+    inset 0 0 12px rgba(75, 30, 133, 0.1);
+  transition: background-color 0.2s ease, transform 0.2s ease;
+  cursor: pointer;
+  padding: 25px;
+  border: 1px solid rgba(75, 30, 133, 0.5);
+}
+
+.programa-card:hover {
+  transform: translateY(-5px) scale(1.02);
+  box-shadow: 0 0 20px rgba(75, 30, 133, 0.6),
+    inset 0 0 15px rgba(75, 30, 133, 0.2);
+}
+
+.programa-card h3 {
+  color: #e4e4e4;
+  font-size: 18px;
+  margin: 0 0 12px 0;
+  font-weight: 700;
+}
+
+.programa-card p {
+  color: #c0c0c0;
+  font-size: 14px;
+  margin: 8px 0;
+  line-height: 1.5;
+}
+
+.programa-horario {
+  background: rgba(75, 30, 133, 0.2);
+  padding: 10px 12px;
+  border-radius: 8px;
+  margin-top: 15px;
+  border-left: 4px solid rgba(75, 30, 133, 1);
+}
+
+.programa-horario strong {
+  color: #e4e4e4;
+  font-size: 13px;
+}
+
+.programa-horario span {
+  color: #c0c0c0;
+  font-size: 13px;
+}
+
+.programa-card-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 18px;
+}
+
+.programa-card-actions button {
+  padding: 8px 12px;
+  font-size: 12px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.3s;
+  background: rgba(255, 255, 255, 0.1);
+  color: #e4e4e4;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.programa-card-actions button:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: translateY(-2px);
+}
+
+.programas-empty {
+  text-align: center;
+  padding: 60px 20px;
+}
+
+.programas-empty h3 {
+  color: #e4e4e4;
+  font-size: 20px;
+  margin-bottom: 10px;
+}
+
+.programas-empty p {
+  color: #999;
+}
+
+/* Modal Styles */
+.programas-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  padding: 20px;
+}
+
+.programas-modal-content {
+  background: #0b1238;
+  padding: 35px;
+  border-radius: 15px;
+  max-width: 500px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+  border: 1px solid rgba(75, 30, 133, 0.7);
+  color: #e4e4e4;
+}
+
+.programas-modal-content h2 {
+  color: #e4e4e4;
+  margin-bottom: 25px;
+  font-size: 22px;
+}
+
+.programas-form-group label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 600;
+  color: #e4e4e4;
+  font-size: 14px;
+}
+
+.programas-form-group input,
+.programas-form-group textarea {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid rgba(75, 30, 133, 0.7);
+  background-color: #06091f;
+  border-radius: 8px;
+  font-size: 14px;
+  transition: all 0.3s;
+  color: #e4e4e4;
+  font-family: "roboto";
+}
+
+.programas-form-group input:focus,
+.programas-form-group textarea:focus {
+  outline: none;
+  border-color: rgba(75, 30, 133, 1);
+  box-shadow: 0 0 8px rgba(75, 30, 133, 0.5);
+}
+
+.programas-modal-buttons {
+  display: flex;
+  gap: 10px;
+  margin-top: 25px;
+}
+
+.programas-modal-buttons button {
+  flex: 1;
+  padding: 12px;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.programas-modal-buttons .btn-submit {
+  background: rgba(75, 30, 133, 1);
+  color: white;
+}
+
+.programas-modal-buttons .btn-submit:hover {
+  background: rgba(95, 40, 153, 1);
+  box-shadow: 0 4px 12px rgba(75, 30, 133, 0.4);
+}
+
+.programas-modal-buttons .btn-cancel {
+  background: rgba(255, 255, 255, 0.1);
+  color: #e4e4e4;
+}
+
+.programas-modal-buttons .btn-cancel:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+/* Sonidos List in Modal */
+.sonidos-list {
+  list-style: none;
+  padding: 0;
+  margin: 15px 0;
+}
+
+.sonidos-list-item {
+  background: rgba(75, 30, 133, 0.1);
+  padding: 12px;
+  margin-bottom: 10px;
+  border-radius: 8px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border: 1px solid rgba(75, 30, 133, 0.3);
+}
+
+.sonidos-list-item:hover {
+  border-color: rgba(75, 30, 133, 0.7);
+}
+
+.sonidos-list-item audio {
+  width: 100%;
+  margin-top: 8px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .programas-grid {
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 15px;
+  }
+
+  .programa-card {
+    padding: 18px;
+  }
+
+  .programa-card h3 {
+    font-size: 16px;
+  }
+
+  .programas-modal-content {
+    padding: 20px;
+  }
+}
+
+@media (max-width: 480px) {
+  .programas-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .programas-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 15px;
+  }
+
+  .programas-modal-content {
+    max-width: 90%;
+  }
+
+  .programa-card-actions {
+    flex-direction: row;
+  }
+
+  .programa-card-actions button {
+    flex: 1;
+  }
+}
+
+/* Sonidos View Styles */
+.sonidos-view-container {
+  padding: 18px 16px;
+}
+
+.sonidos-view-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 30px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid rgba(228, 228, 228, 0.2);
+}
+
+.sonidos-view-header h2 {
+  color: #e4e4e4;
+  font-size: 28px;
+  margin: 0;
+  font-weight: 600;
+}
+
+.back-button {
+  background: none;
+  border: none;
+  color: #e4e4e4;
+  font-size: 16px;
+  cursor: pointer;
+  margin-bottom: 10px;
+  padding: 0;
+}
+
+.creado-por {
+  color: #c0c0c0;
+  font-size: 14px;
+  margin-top: 5px;
+}
+
+.programa-actions-detail {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.programa-actions-detail button {
+  padding: 8px 12px;
+  font-size: 12px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.3s;
+  background: rgba(255, 255, 255, 0.1);
+  color: #e4e4e4;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.programa-actions-detail button:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.programa-actions-detail .btn-delete {
+  background: rgba(220, 53, 69, 0.5);
+  border-color: rgba(220, 53, 69, 0.7);
+}
+
+.programa-actions-detail .btn-delete:hover {
+  background: rgba(220, 53, 69, 0.7);
+}
+
+.sonidos-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 25px;
+}
+
+.sonido-card {
+  background: linear-gradient(
+    to bottom right,
+    rgba(75, 30, 133, 0.5),
+    rgba(75, 30, 133, 0.01)
+  );
+  border-radius: 10px;
+  box-shadow: 0 0 8px rgba(75, 30, 133, 0.2);
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  border: 1px solid rgba(75, 30, 133, 0.3);
+  text-align: center;
+}
+
+.sonido-card-play-icon {
+  font-size: 48px;
+  color: #e4e4e4;
+  cursor: pointer;
+  margin-bottom: 15px;
+  border: 2px solid rgba(228, 228, 228, 0.5);
+  border-radius: 50%;
+  width: 80px;
+  height: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  transition: all 0.3s ease;
+}
+
+.sonido-card:hover .sonido-card-play-icon {
+  border-color: #e4e4e4;
+  transform: scale(1.05);
+}
+
+.sonido-card-info {
+  color: #e4e4e4;
+}
+
+.sonido-card-info strong {
+  display: block;
+  margin-bottom: 10px;
+}
+
+.sonido-card-info p {
+  font-size: 12px;
+  color: #c0c0c0;
+  margin: 5px 0 0 0;
+}
+
+.sonido-card-actions {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  display: flex;
+  gap: 5px;
+}
+
+.sonido-card-edit,
+.sonido-card-delete {
+  background: none;
+  border: none;
+  color: #c0c0c0;
+  font-size: 20px;
+  cursor: pointer;
+  transition: color 0.3s ease;
+  padding: 2px 4px;
+  line-height: 1;
+}
+
+.sonido-card-edit:hover,
+.sonido-card-delete:hover {
+  color: #fff;
+}
+
+/* Audio Player Bar */
+.audio-player-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  background: #06091f;
+  padding: 10px 20px;
+  box-shadow: 0 -4px 15px rgba(0, 0, 0, 0.5);
+  z-index: 1001;
+  border-top: 1px solid rgba(75, 30, 133, 0.5);
+}
+
+.audio-player-bar audio {
+  width: 100%;
+}
