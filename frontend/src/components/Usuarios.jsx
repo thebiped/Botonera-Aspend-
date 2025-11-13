@@ -7,6 +7,8 @@ function Usuarios({ user, apiUrl }) {
   const [usuarios, setUsuarios] = useState([]);
   const [loading, setLoading] = useState(true);
   const [editingUser, setEditingUser] = useState(null);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [userToDelete, setUserToDelete] = useState(null);
 
   useEffect(() => {
     fetchUsuarios();
@@ -51,16 +53,27 @@ function Usuarios({ user, apiUrl }) {
     }
   };
 
-  const handleDelete = async (userId) => {
-    if (!confirm("¿Estás seguro de eliminar este usuario?")) return;
+  const openDeleteModal = (userId) => {
+    setUserToDelete(userId);
+    setShowDeleteModal(true);
+  };
+
+  const closeDeleteModal = () => {
+    setUserToDelete(null);
+    setShowDeleteModal(false);
+  };
+
+  const handleDelete = async () => {
+    if (!userToDelete) return;
 
     try {
-      const res = await fetch(`${apiUrl}/usuarios/${userId}`, {
+      const res = await fetch(`${apiUrl}/usuarios/${userToDelete}`, {
         method: "DELETE",
       });
 
       if (res.ok) {
         fetchUsuarios();
+        closeDeleteModal();
       } else {
         const data = await res.json();
         alert(data.error || "Error al eliminar el usuario");
@@ -95,18 +108,27 @@ function Usuarios({ user, apiUrl }) {
                 <p className="usuario-rol">Rol: {usuario.tipo}</p>
               </div>
               <div className="usuario-actions">
-                <button className="usuario-action-btn usuario-btn-asignar">
-                  Asigne a un programa
-                </button>
-                <button
-                  className="usuario-action-btn usuario-btn-edit"
-                  onClick={() => setEditingUser(usuario.id_usuario)}
-                  disabled={usuario.id_usuario === user.id_usuario}
-                  title="Editar rol"
-                >
-                  ✎
-                </button>
+                {user?.tipo === "admin" && (
+                  <>
+                    <button
+                      className="usuario-action-btn usuario-btn-edit"
+                      onClick={() => setEditingUser(usuario.id_usuario)}
+                      disabled={usuario.id_usuario === user.id_usuario}
+                      title="Editar rol"
+                    >
+                      ✎
+                    </button>
+                    <button
+                      className="usuario-action-btn usuario-btn-delete"
+                      onClick={() => openDeleteModal(usuario.id_usuario)}
+                      disabled={usuario.id_usuario === user.id_usuario}
+                    >
+                      Eliminar
+                    </button>
+                  </>
+                )}
               </div>
+
               {editingUser === usuario.id_usuario && (
                 <div className="usuario-edit-overlay">
                   <select
@@ -127,18 +149,32 @@ function Usuarios({ user, apiUrl }) {
                   >
                     Cancelar
                   </button>
-                  <button
-                    className="usuario-action-btn usuario-btn-delete"
-                    onClick={() => handleDelete(usuario.id_usuario)}
-                    disabled={usuario.id_usuario === user.id_usuario}
-                  >
-                    Eliminar
-                  </button>
                 </div>
               )}
             </li>
           ))}
         </ul>
+      )}
+
+      {/* 🟥 Modal de confirmación al eliminar */}
+      {showDeleteModal && (
+        <div className="modal-overlay" onClick={closeDeleteModal}>
+          <div
+            className="modal-content"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h3>¿Eliminar usuario?</h3>
+            <p>Esta acción no se puede deshacer.</p>
+            <div className="modal-buttons">
+              <button className="btn-confirm" onClick={handleDelete}>
+                Eliminar
+              </button>
+              <button className="btn-cancel" onClick={closeDeleteModal}>
+                Cancelar
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

@@ -18,18 +18,17 @@ function Biblioteca({ user, apiUrl }) {
   const [editingId, setEditingId] = useState(null);
   const [currentlyPlaying, setCurrentlyPlaying] = useState(null);
 
+  const canEdit = user && (user.tipo === "admin" || user.tipo === "operador");
+
   useEffect(() => {
     fetchSonidos();
   }, []);
 
   const fetchSonidos = async () => {
     try {
-      const res = await fetch(`${apiUrl}/sonidos`);
+      const res = await fetch(`${apiUrl}/sonidos?id_usuario=${user.id}`);
       const data = await res.json();
-
-      if (res.ok) {
-        setSonidos(data);
-      }
+      if (res.ok) setSonidos(data);
     } catch (err) {
       console.error("Error al obtener sonidos:", err);
     } finally {
@@ -39,25 +38,21 @@ function Biblioteca({ user, apiUrl }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     try {
       const method = editingId ? "PUT" : "POST";
       const endpoint = editingId ? `/sonidos/${editingId}` : "/sonidos";
-
       const formDataToSend = new FormData();
+
       formDataToSend.append("nombre_sonido", formData.nombre_sonido);
+      formDataToSend.append("id_usuario", user.id);
 
-      if (audioFile) {
-        formDataToSend.append("audio", audioFile);
-      } else if (formData.url_sonidos) {
+      if (audioFile) formDataToSend.append("audio", audioFile);
+      else if (formData.url_sonidos)
         formDataToSend.append("url_sonidos", formData.url_sonidos);
-      }
 
-      if (imagenFile) {
-        formDataToSend.append("imagen", imagenFile);
-      } else if (formData.url_img) {
+      if (imagenFile) formDataToSend.append("imagen", imagenFile);
+      else if (formData.url_img)
         formDataToSend.append("url_img", formData.url_img);
-      }
 
       const res = await fetch(`${apiUrl}${endpoint}`, {
         method,
@@ -65,7 +60,6 @@ function Biblioteca({ user, apiUrl }) {
       });
 
       const data = await res.json();
-
       if (res.ok) {
         fetchSonidos();
         setShowModal(false);
@@ -84,13 +78,10 @@ function Biblioteca({ user, apiUrl }) {
 
   const handleDelete = async (id) => {
     if (!confirm("¿Estás seguro de eliminar este sonido?")) return;
-
     try {
       const res = await fetch(`${apiUrl}/sonidos/${id}`, { method: "DELETE" });
-
-      if (res.ok) {
-        fetchSonidos();
-      } else {
+      if (res.ok) fetchSonidos();
+      else {
         const data = await res.json();
         alert(data.error || "Error al eliminar el sonido");
       }
@@ -112,11 +103,7 @@ function Biblioteca({ user, apiUrl }) {
     setShowModal(true);
   };
 
-  const handlePlaySound = (sonido) => {
-    setCurrentlyPlaying(sonido);
-  };
-
-  const canEdit = user && (user.tipo === "admin" || user.tipo === "operador");
+  const handlePlaySound = (sonido) => setCurrentlyPlaying(sonido);
 
   if (loading)
     return <div className="biblioteca-loading">Cargando sonidos...</div>;
@@ -131,7 +118,11 @@ function Biblioteca({ user, apiUrl }) {
             onClick={() => {
               setShowModal(true);
               setEditingId(null);
-              setFormData({ nombre_sonido: "", url_sonidos: "", url_img: "" });
+              setFormData({
+                nombre_sonido: "",
+                url_sonidos: "",
+                url_img: "",
+              });
               setAudioFile(null);
               setImagenFile(null);
             }}
@@ -154,10 +145,22 @@ function Biblioteca({ user, apiUrl }) {
                 className="biblioteca-card-play"
                 onClick={() => handlePlaySound(sonido)}
               >
-                ▶
+                {sonido.url_img ? (
+                  <>
+                    <img
+                      src={sonido.url_img}
+                      alt={sonido.nombre_sonido}
+                      className="biblioteca-card-img"
+                    />
+                    <span className="biblioteca-card-icon">▶</span>
+                  </>
+                ) : (
+                  "▶"
+                )}
               </div>
               <h3 className="biblioteca-card-title">{sonido.nombre_sonido}</h3>
               <p className="biblioteca-card-duration">Duración: 0:25</p>
+
               {canEdit && (
                 <div className="biblioteca-card-actions">
                   <button
@@ -229,10 +232,9 @@ function Biblioteca({ user, apiUrl }) {
                 <input
                   type="text"
                   value={formData.url_sonidos}
-                  onChange={(e) => {
-                    setFormData({ ...formData, url_sonidos: e.target.value });
-                    setAudioFile(null);
-                  }}
+                  onChange={(e) =>
+                    setFormData({ ...formData, url_sonidos: e.target.value })
+                  }
                   placeholder="https://ejemplo.com/sonido.mp3"
                   disabled={audioFile !== null}
                 />
@@ -260,10 +262,9 @@ function Biblioteca({ user, apiUrl }) {
                 <input
                   type="text"
                   value={formData.url_img}
-                  onChange={(e) => {
-                    setFormData({ ...formData, url_img: e.target.value });
-                    setImagenFile(null);
-                  }}
+                  onChange={(e) =>
+                    setFormData({ ...formData, url_img: e.target.value })
+                  }
                   placeholder="https://ejemplo.com/imagen.jpg"
                   disabled={imagenFile !== null}
                 />

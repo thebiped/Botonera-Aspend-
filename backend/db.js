@@ -57,7 +57,8 @@ db.run(`
     id_usuario INTEGER,
     FOREIGN KEY (id_usuario) REFERENCES usuario(id_usuario)
   )
-`)
+`);
+
 
 db.run(`
   CREATE TABLE IF NOT EXISTS programa_sonidos (
