@@ -13,18 +13,10 @@ function Programas({ user, apiUrl }) {
   const [sonidos, setSonidos] = useState([]);
   const [usuarios, setUsuarios] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [showModal, setShowModal] = useState(false);
-  const [showAccionModal, setShowAccionModal] = useState(false);
-  const [showAgregarSonidoModal, setShowAgregarSonidoModal] = useState(false);
-  const [showAsignarUsuarioModal, setShowAsignarUsuarioModal] = useState(false);
+  const [showAsignarModal, setShowAsignarModal] = useState(false);
+  const [showVerSonidosModal, setShowVerSonidosModal] = useState(false);
   const [selectedPrograma, setSelectedPrograma] = useState(null);
   const [programaSonidos, setProgramaSonidos] = useState([]);
-  const [formData, setFormData] = useState({
-    nombre: "",
-    descripcion: "",
-    horario: "",
-  });
-  const [editingId, setEditingId] = useState(null);
   const [view, setView] = useState("list");
   const [currentlyPlaying, setCurrentlyPlaying] = useState(null);
   const [nuevoSonido, setNuevoSonido] = useState({
@@ -34,9 +26,15 @@ function Programas({ user, apiUrl }) {
     imagen: null,
     url_img: "",
   });
+  const [activeTab, setActiveTab] = useState("sonidos");
+
+  // **ESTADOS NUEVOS PARA ARCHIVOS**
+  const [audioFile, setAudioFile] = useState(null);
+  const [imagenFile, setImagenFile] = useState(null);
 
   const audioRef = useRef(null);
   const canAdmin = user.tipo === "admin";
+  const isOperador = user.tipo === "operador";
 
   useEffect(() => {
     fetchProgramas();
@@ -48,9 +46,7 @@ function Programas({ user, apiUrl }) {
     if (currentlyPlaying && audioRef.current) {
       audioRef.current.src = currentlyPlaying.url_sonidos;
       audioRef.current.load();
-      audioRef.current.play().catch((e) =>
-        console.error("Error al reproducir audio:", e)
-      );
+      audioRef.current.play().catch((e) => console.error(e));
     }
   }, [currentlyPlaying]);
 
@@ -60,7 +56,7 @@ function Programas({ user, apiUrl }) {
       const data = await res.json();
       if (res.ok) setProgramas(data);
     } catch (err) {
-      console.error("Error al obtener programas:", err);
+      console.error(err);
     } finally {
       setLoading(false);
     }
@@ -72,7 +68,7 @@ function Programas({ user, apiUrl }) {
       const data = await res.json();
       if (res.ok) setSonidos(data);
     } catch (err) {
-      console.error("Error al obtener sonidos:", err);
+      console.error(err);
     }
   };
 
@@ -82,7 +78,7 @@ function Programas({ user, apiUrl }) {
       const data = await res.json();
       if (res.ok) setUsuarios(data);
     } catch (err) {
-      console.error("Error al obtener usuarios:", err);
+      console.error(err);
     }
   };
 
@@ -90,82 +86,22 @@ function Programas({ user, apiUrl }) {
     try {
       const res = await fetch(`${apiUrl}/programas/${programaId}/sonidos`);
       const data = await res.json();
-      if (res.ok) setProgramaSonidos(data);
-    } catch (err) {
-      console.error("Error:", err);
-    }
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (!canAdmin) {
-      alert("Solo los administradores pueden crear o editar programas.");
-      return;
-    }
-
-    try {
-      const method = editingId ? "PUT" : "POST";
-      const endpoint = editingId ? `/programas/${editingId}` : "/programas";
-      const res = await fetch(`${apiUrl}${endpoint}`, {
-        method,
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
-      });
-      const data = await res.json();
       if (res.ok) {
-        fetchProgramas();
-        setShowModal(false);
-        setFormData({ nombre: "", descripcion: "", horario: "" });
-        setEditingId(null);
-        if (editingId) {
-          const updatedPrograma = await (
-            await fetch(`${apiUrl}/programas/${editingId}`)
-          ).json();
-          setSelectedPrograma(updatedPrograma);
+        if (isOperador) {
+          setProgramaSonidos(
+            data.filter((s) => s.creadorId === user.id_usuario)
+          );
+        } else if (canAdmin) {
+          setProgramaSonidos(
+            data.filter((s) => s.creadorId === user.id_usuario)
+          );
+        } else {
+          setProgramaSonidos(data);
         }
-      } else {
-        alert(data.error || "Error al guardar el programa");
       }
     } catch (err) {
-      console.error("Error:", err);
-      alert("No se pudo conectar al servidor");
+      console.error(err);
     }
-  };
-
-  const handleDelete = async (id) => {
-    if (!canAdmin) {
-      alert("Solo los administradores pueden eliminar programas.");
-      return;
-    }
-    if (!confirm("¿Estás seguro de eliminar este programa?")) return;
-    try {
-      const res = await fetch(`${apiUrl}/programas/${id}`, { method: "DELETE" });
-      if (res.ok) {
-        fetchProgramas();
-        setView("list");
-        setSelectedPrograma(null);
-      } else {
-        const data = await res.json();
-        alert(data.error || "Error al eliminar el programa");
-      }
-    } catch (err) {
-      console.error("Error:", err);
-      alert("No se pudo conectar al servidor");
-    }
-  };
-
-  const handleEdit = (programa) => {
-    if (!canAdmin) {
-      alert("Solo los administradores pueden editar programas.");
-      return;
-    }
-    setFormData({
-      nombre: programa.nombre,
-      descripcion: programa.descripcion || "",
-      horario: programa.horario || "",
-    });
-    setEditingId(programa.id_programa);
-    setShowModal(true);
   };
 
   const handleShowSonidos = (programa) => {
@@ -184,9 +120,10 @@ function Programas({ user, apiUrl }) {
   };
 
   const handleRemoveSonido = async (sonidoId) => {
-    if (!canAdmin) {
-      alert("Solo los administradores pueden quitar sonidos.");
-      return;
+    const sonido = programaSonidos.find((s) => s.id_sonido === sonidoId);
+    if (!sonido) return;
+    if (!canAdmin && !(isOperador && sonido.creadorId === user.id_usuario)) {
+      return alert("No tenés permisos para eliminar este sonido.");
     }
     try {
       const res = await fetch(
@@ -199,14 +136,17 @@ function Programas({ user, apiUrl }) {
         alert(data.error || "Error al quitar el sonido");
       }
     } catch (err) {
-      console.error("Error:", err);
+      console.error(err);
       alert("No se pudo conectar al servidor");
     }
   };
 
   const handleAgregarSonido = async (e) => {
     e.preventDefault();
-    if (!canAdmin) return alert("Solo los administradores pueden agregar sonidos.");
+    if (!(canAdmin || isOperador))
+      return alert("No tenés permisos para agregar sonidos.");
+    if (!user?.id_usuario || !selectedPrograma?.id_programa)
+      return alert("Error: falta ID de usuario o programa.");
 
     const formData = new FormData();
     formData.append("nombre_sonido", nuevoSonido.nombre_sonido);
@@ -214,6 +154,8 @@ function Programas({ user, apiUrl }) {
     if (nuevoSonido.imagen) formData.append("imagen", nuevoSonido.imagen);
     formData.append("url_sonidos", nuevoSonido.url_sonidos);
     formData.append("url_img", nuevoSonido.url_img);
+    formData.append("programaId", selectedPrograma.id_programa);
+    formData.append("creadorId", user.id_usuario);
 
     try {
       const res = await fetch(`${apiUrl}/sonidos`, {
@@ -223,7 +165,7 @@ function Programas({ user, apiUrl }) {
       if (res.ok) {
         alert("Sonido agregado correctamente");
         fetchProgramaSonidos(selectedPrograma.id_programa);
-        setShowAgregarSonidoModal(false);
+        // Reset solo al agregar correctamente
         setNuevoSonido({
           nombre_sonido: "",
           archivo: null,
@@ -231,8 +173,11 @@ function Programas({ user, apiUrl }) {
           imagen: null,
           url_img: "",
         });
+        setAudioFile(null);
+        setImagenFile(null);
       } else {
-        alert("Error al agregar sonido");
+        const data = await res.json();
+        alert(data.error || "Error al agregar sonido");
       }
     } catch (err) {
       console.error(err);
@@ -240,22 +185,21 @@ function Programas({ user, apiUrl }) {
     }
   };
 
-  const handleAsignarUsuario = async (programaId, usuarioId) => {
+  const handleAsignarUsuario = async (usuarioId) => {
     try {
-      const res = await fetch(`${apiUrl}/programas/${programaId}/asignar-usuario`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ usuarioId }),
-      });
+      const res = await fetch(
+        `${apiUrl}/programas/${selectedPrograma.id_programa}/asignar-usuario`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ usuarioId }),
+        }
+      );
       const data = await res.json();
-      if (res.ok) {
-        alert("Usuario asignado correctamente");
-        setShowAsignarUsuarioModal(false);
-      } else {
-        alert(data.error || "Error al asignar usuario");
-      }
+      if (res.ok) alert("Usuario asignado correctamente");
+      else alert(data.error || "Error al asignar usuario");
     } catch (err) {
-      console.error("Error al asignar usuario:", err);
+      console.error(err);
       alert("No se pudo conectar al servidor");
     }
   };
@@ -266,23 +210,10 @@ function Programas({ user, apiUrl }) {
     <>
       <div className="programas-header">
         <h2>Programas</h2>
-        {canAdmin && (
-          <button
-            className="programas-btn-agregar"
-            onClick={() => {
-              setShowModal(true);
-              setEditingId(null);
-              setFormData({ nombre: "", descripcion: "", horario: "" });
-            }}
-          >
-            + Nuevo Programa
-          </button>
-        )}
       </div>
       {programas.length === 0 ? (
         <div className="programas-empty">
           <h3>No hay programas disponibles</h3>
-          <p>Agrega tu primer programa para comenzar</p>
         </div>
       ) : (
         <div className="programas-grid">
@@ -310,39 +241,44 @@ function Programas({ user, apiUrl }) {
   const SonidosView = () => (
     <div className="sonidos-view-container">
       <div className="sonidos-view-header">
-        <div>
-          <button
-            onClick={() => {
-              setView("list");
-              setCurrentlyPlaying(null);
-            }}
-            className="back-button"
-          >
-            ← Volver
-          </button>
-          <h2>{selectedPrograma.nombre}</h2>
-          <p className="creado-por">
-            creado por {selectedPrograma.creador || "administrador"}
-          </p>
-        </div>
-
-        {canAdmin && (
-          <div className="programa-actions-detail">
-            <button onClick={() => setShowAccionModal(true)}>Acción</button>
-            <button
-              onClick={() => setShowAgregarSonidoModal(true)}
-              className="btn-add-sound"
-            >
-              Agregar Sonido
-            </button>
+        <button
+          onClick={() => {
+            setView("list");
+            setCurrentlyPlaying(null);
+          }}
+          className="back-button"
+        >
+          ← Volver
+        </button>
+        <div className="sonidos-view-header-con">
+          <div className="sonidos-view-header-content">
+            <h2>{selectedPrograma.nombre}</h2>
+            <p className="creado-por">
+              creado por {selectedPrograma.creador || "administrador"}
+            </p>
           </div>
-        )}
+          {canAdmin && (
+            <>
+              <button
+                onClick={() => setShowAsignarModal(true)}
+                className="btn-asignar"
+              >
+                Asignar
+              </button>
+              <button
+                onClick={() => setShowVerSonidosModal(true)}
+                className="btn-asignar"
+              >
+                Ver Sonidos
+              </button>
+            </>
+          )}
+        </div>
       </div>
 
       {programaSonidos.length === 0 ? (
         <div className="programas-empty">
           <h3>No hay sonidos asignados</h3>
-          <p>Agrega sonidos para verlos aquí</p>
         </div>
       ) : (
         <div className="sonidos-grid">
@@ -357,8 +293,9 @@ function Programas({ user, apiUrl }) {
               <div className="sonido-card-info">
                 <strong>{sonido.nombre_sonido}</strong>
                 <p>duración: {sonido.duracion || "N/A"}</p>
+                <p>Asignado por: {sonido.creador || "admin"}</p>
               </div>
-              {canAdmin && (
+              {(canAdmin || (isOperador && sonido.creadorId === user.id_usuario)) && (
                 <div className="sonido-card-actions">
                   <button
                     onClick={() => handleEditSonido(sonido)}
@@ -387,191 +324,252 @@ function Programas({ user, apiUrl }) {
         />
       )}
 
-      {/* Modal acción programa */}
-      {showAccionModal && (
-        <div className="programas-modal" onClick={() => setShowAccionModal(false)}>
+      {/* MODALES */}
+      {(showAsignarModal || showVerSonidosModal) && (
+        <div
+          className="programas-modal"
+          onClick={() => {
+            setShowAsignarModal(false);
+            setShowVerSonidosModal(false);
+            setNuevoSonido({
+              nombre_sonido: "",
+              archivo: null,
+              url_sonidos: "",
+              imagen: null,
+              url_img: "",
+            });
+            setAudioFile(null);
+            setImagenFile(null);
+          }}
+        >
           <div
             className="programas-modal-content"
             onClick={(e) => e.stopPropagation()}
           >
-            <h2>Acción sobre {selectedPrograma.nombre}</h2>
-            <p>¿Qué querés hacer con este programa?</p>
-            <div className="programas-modal-buttons">
-              <button onClick={() => handleEdit(selectedPrograma)}>
-                Editar Programa
-              </button>
-              <button
-                className="btn-delete"
-                onClick={() => handleDelete(selectedPrograma.id_programa)}
-              >
-                Eliminar Programa
-              </button>
-              <button
-                onClick={() => setShowAsignarUsuarioModal(true)}
-                className="btn-asignar"
-              >
-                Asignar usuario
-              </button>
-              <button onClick={() => setShowAccionModal(false)}>Cancelar</button>
-            </div>
-          </div>
-        </div>
-      )}
+            {/* MODAL ASIGNAR */}
+            {showAsignarModal && (
+              <>
+                <div className="programas-modal-tabs">
+                  <button
+                    className={activeTab === "sonidos" ? "active" : ""}
+                    onClick={() => setActiveTab("sonidos")}
+                  >
+                    Asignar Sonidos
+                  </button>
+                  <button
+                    className={activeTab === "usuarios" ? "active" : ""}
+                    onClick={() => setActiveTab("usuarios")}
+                  >
+                    Asignar Usuarios
+                  </button>
+                </div>
 
-      {/* Modal Asignar Usuario */}
-      {showAsignarUsuarioModal && (
-        <div className="modal-overlay" onClick={() => setShowAsignarUsuarioModal(false)}>
-          <div
-            className="modal-content modal-usuarios-mini"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <h3>Asignar usuario al programa</h3>
-            {usuarios.length === 0 ? (
-              <p style={{ color: "#aaa" }}>No hay usuarios disponibles</p>
-            ) : (
-              <ul className="usuarios-mini-list">
-                {usuarios.map((u) => (
-                  <li key={u.id_usuario} className="usuario-mini-item">
-                    <div className="usuario-mini-info">
-                      <span className="usuario-mini-nombre">{u.n_usuario}</span>
-                      <span className="usuario-mini-email">{u.gmail}</span>
-                    </div>
-                    <button
-                      className="btn-asignar-mini"
-                      onClick={() =>
-                        handleAsignarUsuario(selectedPrograma.id_programa, u.id_usuario)
-                      }
-                    >
-                      Asignar
-                    </button>
-                  </li>
-                ))}
-              </ul>
+                <div className="programas-modal-tab-content">
+                  {activeTab === "sonidos" && (canAdmin || isOperador) && (
+                    <form onSubmit={handleAgregarSonido}>
+                      <div className="programas-form-group">
+                        <label>Nombre del Sonido *</label>
+                        <input
+                          type="text"
+                          value={nuevoSonido.nombre_sonido}
+                          onChange={(e) =>
+                            setNuevoSonido((prev) => ({
+                              ...prev,
+                              nombre_sonido: e.target.value,
+                            }))
+                          }
+                          required
+                        />
+                      </div>
+
+                      <div className="programas-form-group">
+                        <label>Archivo de audio</label>
+                        <input
+                          type="file"
+                          accept="audio/*"
+                          onChange={(e) => {
+                            setAudioFile(e.target.files[0] || null);
+                            setNuevoSonido((prev) => ({
+                              ...prev,
+                              archivo: e.target.files[0] || null,
+                              url_sonidos: "",
+                            }));
+                          }}
+                        />
+                        {audioFile && (
+                          <p className="programas-form-success">
+                            Archivo seleccionado: {audioFile.name}
+                          </p>
+                        )}
+                      </div>
+
+                      <div className="programas-form-group">
+                        <label>O URL de audio</label>
+                        <input
+                          type="text"
+                          value={nuevoSonido.url_sonidos}
+                          onChange={(e) =>
+                            setNuevoSonido((prev) => ({
+                              ...prev,
+                              url_sonidos: e.target.value,
+                              archivo: null,
+                            }))
+                          }
+                          placeholder="https://ejemplo.com/sonido.mp3"
+                          disabled={audioFile !== null}
+                        />
+                      </div>
+
+                      <div className="programas-form-group">
+                        <label>Imagen</label>
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={(e) => {
+                            setImagenFile(e.target.files[0] || null);
+                            setNuevoSonido((prev) => ({
+                              ...prev,
+                              imagen: e.target.files[0] || null,
+                              url_img: "",
+                            }));
+                          }}
+                        />
+                        {imagenFile && (
+                          <p className="programas-form-success">
+                            Archivo seleccionado: {imagenFile.name}
+                          </p>
+                        )}
+                      </div>
+
+                      <div className="programas-form-group">
+                        <label>O URL de imagen</label>
+                        <input
+                          type="text"
+                          value={nuevoSonido.url_img}
+                          onChange={(e) =>
+                            setNuevoSonido((prev) => ({
+                              ...prev,
+                              url_img: e.target.value,
+                              imagen: null,
+                            }))
+                          }
+                          placeholder="https://ejemplo.com/imagen.jpg"
+                          disabled={imagenFile !== null}
+                        />
+                      </div>
+
+                      <div className="programas-modal-buttons">
+                        <button type="submit" className="btn-submit">
+                          Guardar
+                        </button>
+                        <button
+                          type="button"
+                          className="btn-cancel"
+                          onClick={() => {
+                            setNuevoSonido({
+                              nombre_sonido: "",
+                              archivo: null,
+                              url_sonidos: "",
+                              imagen: null,
+                              url_img: "",
+                            });
+                            setAudioFile(null);
+                            setImagenFile(null);
+                            setShowAsignarModal(false);
+                          }}
+                        >
+                          Cancelar
+                        </button>
+                      </div>
+                    </form>
+                  )}
+
+                  {/* PESTAÑA USUARIOS */}
+                  {activeTab === "usuarios" && canAdmin && (
+                    <ul className="programas-usuarios-list">
+                      {usuarios
+                        .filter((u) => u.tipo !== "admin")
+                        .map((u) => (
+                          <li
+                            key={u.id_usuario}
+                            className="programas-usuario-item"
+                          >
+                            <div className="usuario-avatar">👤</div>
+                            <div className="usuario-info">
+                              <h3 className="usuario-name">{u.n_usuario}</h3>
+                              <p className="usuario-email">{u.gmail}</p>
+                              <p className="usuario-rol">Rol: {u.tipo}</p>
+                            </div>
+                            <div className="usuario-actions">
+                              <button
+                                className="usuario-btn-asignar"
+                                onClick={() =>
+                                  handleAsignarUsuario(u.id_usuario)
+                                }
+                              >
+                                Asignar al programa
+                              </button>
+                            </div>
+                          </li>
+                        ))}
+                    </ul>
+                  )}
+                </div>
+              </>
             )}
-            <button
-              className="btn-cancel"
-              onClick={() => setShowAsignarUsuarioModal(false)}
-            >
-              Cerrar
-            </button>
-          </div>
-        </div>
-      )}
 
-      {/* Modal agregar sonido */}
-      {showAgregarSonidoModal && (
-        <div
-          className="biblioteca-modal"
-          onClick={() => setShowAgregarSonidoModal(false)}
-        >
-          <div
-            className="biblioteca-modal-content"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <h2>{editingId ? "Editar Sonido" : "Nuevo Sonido"}</h2>
-            <form onSubmit={handleAgregarSonido}>
-              <div className="biblioteca-form-group">
-                <label>Nombre del Sonido *</label>
-                <input
-                  type="text"
-                  value={nuevoSonido.nombre_sonido}
-                  onChange={(e) =>
-                    setNuevoSonido({
-                      ...nuevoSonido,
-                      nombre_sonido: e.target.value,
-                    })
-                  }
-                  required
-                />
-              </div>
-
-              <div className="biblioteca-form-group">
-                <label>Audio del Sonido</label>
-                <input
-                  type="file"
-                  accept="audio/*"
-                  onChange={(e) => {
-                    setNuevoSonido({
-                      ...nuevoSonido,
-                      archivo: e.target.files[0],
-                      url_sonidos: "",
-                    });
-                  }}
-                />
-                {nuevoSonido.archivo && (
-                  <p className="biblioteca-form-success">
-                    Archivo seleccionado: {nuevoSonido.archivo.name}
-                  </p>
+            {/* MODAL VER SONIDOS */}
+            {showVerSonidosModal && (
+              <>
+                <h2>Sonidos del Programa</h2>
+                <p>
+                  Lista de sonidos asignados a este programa. Puedes editar o
+                  eliminar cada sonido.
+                </p>
+                {programaSonidos.length === 0 ? (
+                  <div className="programas-empty">
+                    <h3>No hay sonidos asignados a este programa</h3>
+                  </div>
+                ) : (
+                  <ul className="sonidos-list">
+                    {programaSonidos.map((sonido) => (
+                      <li key={sonido.id_sonido} className="sonidos-list-item">
+                        <div>
+                          <strong>{sonido.nombre_sonido}</strong>
+                          <p>Asignado por: {sonido.creador || "admin"}</p>
+                        </div>
+                        {(canAdmin || (isOperador && sonido.creadorId === user.id_usuario)) && (
+                          <div className="programa-actions-detail">
+                            <button
+                              className="btn-submit"
+                              onClick={() => handleEditSonido(sonido)}
+                            >
+                              Editar
+                            </button>
+                            <button
+                              className="btn-delete"
+                              onClick={() =>
+                                handleRemoveSonido(sonido.id_sonido)
+                              }
+                            >
+                              Eliminar
+                            </button>
+                          </div>
+                        )}
+                      </li>
+                    ))}
+                  </ul>
                 )}
-              </div>
-
-              <div className="biblioteca-form-group">
-                <label>O ingresa URL del audio</label>
-                <input
-                  type="text"
-                  value={nuevoSonido.url_sonidos}
-                  onChange={(e) => {
-                    setNuevoSonido({
-                      ...nuevoSonido,
-                      url_sonidos: e.target.value,
-                      archivo: null,
-                    });
-                  }}
-                  placeholder="https://ejemplo.com/sonido.mp3"
-                  disabled={nuevoSonido.archivo !== null}
-                />
-              </div>
-
-              <div className="biblioteca-form-group">
-                <label>Imagen del Sonido</label>
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={(e) => {
-                    setNuevoSonido({
-                      ...nuevoSonido,
-                      imagen: e.target.files[0],
-                      url_img: "",
-                    });
-                  }}
-                />
-                {nuevoSonido.imagen && (
-                  <p className="biblioteca-form-success">
-                    Archivo seleccionado: {nuevoSonido.imagen.name}
-                  </p>
-                )}
-              </div>
-
-              <div className="biblioteca-form-group">
-                <label>O ingresa URL de la imagen</label>
-                <input
-                  type="text"
-                  value={nuevoSonido.url_img}
-                  onChange={(e) => {
-                    setNuevoSonido({
-                      ...nuevoSonido,
-                      url_img: e.target.value,
-                      imagen: null,
-                    });
-                  }}
-                  placeholder="https://ejemplo.com/imagen.jpg"
-                  disabled={nuevoSonido.imagen !== null}
-                />
-              </div>
-
-              <div className="biblioteca-modal-buttons">
-                <button type="submit" className="biblioteca-btn-submit">
-                  {editingId ? "Actualizar" : "Crear"}
-                </button>
-                <button
-                  type="button"
-                  className="biblioteca-btn-cancel"
-                  onClick={() => setShowAgregarSonidoModal(false)}
-                >
-                  Cancelar
-                </button>
-              </div>
-            </form>
+                <div className="programas-modal-buttons">
+                  <button
+                    className="btn-cancel"
+                    onClick={() => setShowVerSonidosModal(false)}
+                  >
+                    Cerrar
+                  </button>
+                </div>
+              </>
+            )}
           </div>
         </div>
       )}
@@ -581,63 +579,6 @@ function Programas({ user, apiUrl }) {
   return (
     <div className="programas-container">
       {view === "list" ? <ProgramasList /> : <SonidosView />}
-
-      {showModal && (
-        <div className="programas-modal" onClick={() => setShowModal(false)}>
-          <div
-            className="programas-modal-content"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <h2>{editingId ? "Editar Programa" : "Nuevo Programa"}</h2>
-            <form onSubmit={handleSubmit}>
-              <div className="programas-form-group">
-                <label>Nombre del Programa *</label>
-                <input
-                  type="text"
-                  value={formData.nombre}
-                  onChange={(e) =>
-                    setFormData({ ...formData, nombre: e.target.value })
-                  }
-                  required
-                />
-              </div>
-              <div className="programas-form-group">
-                <label>Descripción</label>
-                <textarea
-                  value={formData.descripcion}
-                  onChange={(e) =>
-                    setFormData({ ...formData, descripcion: e.target.value })
-                  }
-                  rows="3"
-                />
-              </div>
-              <div className="programas-form-group">
-                <label>Horario</label>
-                <input
-                  type="text"
-                  value={formData.horario}
-                  onChange={(e) =>
-                    setFormData({ ...formData, horario: e.target.value })
-                  }
-                  placeholder="Ej: Lunes a Viernes 10:00 - 12:00"
-                />
-              </div>
-              <div className="programas-modal-buttons">
-                <button type="submit" className="btn-submit">
-                  {editingId ? "Actualizar" : "Crear"}
-                </button>
-                <button
-                  type="button"
-                  className="btn-cancel"
-                  onClick={() => setShowModal(false)}
-                >
-                  Cancelar
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

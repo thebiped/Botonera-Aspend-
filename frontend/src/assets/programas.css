@@ -261,50 +261,6 @@
   margin-top: 8px;
 }
 
-/* Responsive */
-@media (max-width: 768px) {
-  .programas-grid {
-    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-    gap: 15px;
-  }
-
-  .programa-card {
-    padding: 18px;
-  }
-
-  .programa-card h3 {
-    font-size: 16px;
-  }
-
-  .programas-modal-content {
-    padding: 20px;
-  }
-}
-
-@media (max-width: 480px) {
-  .programas-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .programas-header {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 15px;
-  }
-
-  .programas-modal-content {
-    max-width: 90%;
-  }
-
-  .programa-card-actions {
-    flex-direction: row;
-  }
-
-  .programa-card-actions button {
-    flex: 1;
-  }
-}
-
 /* Sonidos View Styles */
 .sonidos-view-container {
   padding: 18px 16px;
@@ -314,16 +270,36 @@
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
+  flex-direction: column;
   margin-bottom: 30px;
   padding-bottom: 20px;
   border-bottom: 1px solid rgba(228, 228, 228, 0.2);
 }
 
-.sonidos-view-header h2 {
+.sonidos-view-header-con {
+  width: 100%;
+  display: flex;
+  justify-content: space-around;
+  margin-left: 10px;
+}
+
+.sonidos-view-header-con h2 {
   color: #e4e4e4;
   font-size: 28px;
   margin: 0;
   font-weight: 600;
+}
+
+.sonidos-view-header-con p {
+  color: #c0c0c0;
+  font-size: 14px;
+  margin: 5px 0 0 0;
+}
+
+.sonidos-view-header-content {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
 }
 
 .back-button {
@@ -342,26 +318,21 @@
   margin-top: 5px;
 }
 
-.programa-actions-detail {
-  display: flex;
-  gap: 10px;
-  align-items: center;
-}
-
-.programa-actions-detail button {
+.btn-asignar {
+  height: fit-content;
   padding: 8px 12px;
   font-size: 12px;
+  font-weight: 600;
+  color: #e4e4e4;
+  background: rgba(255, 255, 255, 0.1);
   border-radius: 8px;
   border: none;
-  cursor: pointer;
-  font-weight: 600;
-  transition: all 0.3s;
-  background: rgba(255, 255, 255, 0.1);
-  color: #e4e4e4;
   border: 1px solid rgba(255, 255, 255, 0.2);
+  transition: all 0.3s;
+  cursor: pointer;
 }
 
-.programa-actions-detail button:hover {
+.btn-asignar button:hover {
   background: rgba(255, 255, 255, 0.2);
 }
 
@@ -474,4 +445,223 @@
 
 .audio-player-bar audio {
   width: 100%;
+}
+/* Container */
+.programas-container {
+  width: 100%;
+  min-height: 100vh;
+  padding: 18px 16px;
+  color: #e4e4e4;
+}
+
+/* Grid de programas */
+.programas-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 25px;
+}
+
+/* Card de programa */
+.programa-card {
+  background: linear-gradient(
+    to bottom right,
+    rgba(75, 30, 133, 1),
+    rgba(75, 30, 133, 0.01)
+  );
+  border-radius: 10px;
+  padding: 25px;
+  border: 1px solid rgba(75, 30, 133, 0.5);
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.programa-card:hover {
+  transform: translateY(-5px) scale(1.02);
+  box-shadow: 0 0 20px rgba(75, 30, 133, 0.6),
+    inset 0 0 15px rgba(75, 30, 133, 0.2);
+}
+
+/* Modal */
+.programas-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  padding: 20px;
+}
+
+.programas-modal-content {
+  background: #0b1238;
+  padding: 35px;
+  border-radius: 15px;
+  max-width: 500px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+  border: 1px solid rgba(75, 30, 133, 0.7);
+  color: #e4e4e4;
+}
+
+.programas-modal-tabs {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.programas-modal-tabs button {
+  flex: 1;
+  padding: 10px;
+  background: rgba(75, 30, 133, 0.2);
+  color: #e4e4e4;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.programas-modal-tabs button.active {
+  background: rgba(75, 30, 133, 1);
+}
+
+/* Formulario modal */
+.programas-form-group {
+  margin-bottom: 15px;
+}
+
+.programas-form-group label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 600;
+}
+
+.programas-form-group input {
+  width: 100%;
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid rgba(75, 30, 133, 0.7);
+  background: #06091f;
+  color: #e4e4e4;
+}
+
+/* Botones modal */
+.programas-modal-buttons {
+  display: flex;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.programas-modal-buttons .btn-submit {
+  flex: 1;
+  padding: 12px;
+  background: rgba(75, 30, 133, 1);
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  color: #fff;
+  font-weight: 600;
+}
+
+.programas-modal-buttons .btn-submit:hover {
+  background: rgba(95, 40, 153, 1);
+}
+
+.programas-modal-buttons .btn-cancel {
+  flex: 1;
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  border: none;
+  color: #e4e4e4;
+  cursor: pointer;
+}
+
+/* Lista de usuarios */
+.programas-usuarios-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.programas-usuario-item {
+  display: flex;
+  gap: 10px;
+  padding: 10px;
+  border-radius: 8px;
+  background: rgba(75, 30, 133, 0.1);
+  margin-bottom: 10px;
+  border: 1px solid rgba(75, 30, 133, 0.3);
+}
+
+.usuario-avatar {
+  font-size: 24px;
+  display: flex;
+  align-items: center;
+}
+
+.usuario-info {
+  flex: 1;
+}
+
+.usuario-btn-asignar {
+  padding: 6px 12px;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  background: rgba(75, 30, 133, 1);
+  color: #fff;
+  font-weight: 600;
+}
+
+.usuario-btn-asignar:hover {
+  background: rgba(95, 40, 153, 1);
+}
+/* Responsive */
+@media (max-width: 768px) {
+  .programas-grid {
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 15px;
+  }
+
+  .programa-card {
+    padding: 18px;
+  }
+
+  .programa-card h3 {
+    font-size: 16px;
+  }
+
+  .programas-modal-content {
+    padding: 20px;
+  }
+}
+
+@media (max-width: 480px) {
+  .programas-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .programas-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 15px;
+  }
+
+  .programas-modal-content {
+    max-width: 90%;
+  }
+
+  .programa-card-actions {
+    flex-direction: row;
+  }
+
+  .programa-card-actions button {
+    flex: 1;
+  }
 }
