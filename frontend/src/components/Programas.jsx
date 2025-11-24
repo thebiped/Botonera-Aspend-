@@ -83,7 +83,10 @@ function Programas({ user, apiUrl }) {
       // Si es productor, pide solo los programas asignados
       if (isProductor && userId) {
         url = `${apiUrl}/programas?id_usuario=${userId}`;
+      }if (isOperador && userId) {
+        url = `${apiUrl}/programas?id_usuario=${userId}`;
       }
+      
 
       const res = await fetch(url);
       const data = await res.json();
@@ -470,11 +473,11 @@ function Programas({ user, apiUrl }) {
       {view === "list" && (
         <>
           <div className="programas-header">
-            <h2>{isProductor ? "Mis Programas Asignados" : "Programas"}</h2>
+            <h2>{isProductor || isOperador ? "Mis Programas Asignados" : "Programas"}</h2>
             {/* [NUEVO] Botón de Crear Programa (SOLO ADMIN) */}
             {canAdmin && (
               <button
-                className="btn-create-programa"
+                className="feo"
                 onClick={() => setShowNewProgramaModal(true)}
               >
                 + Crear Programa
@@ -484,7 +487,7 @@ function Programas({ user, apiUrl }) {
           {programas.length === 0 ? (
             <div className="programas-empty">
               <h3>
-                {isProductor
+                {isProductor || isOperador
                   ? "No tienes programas asignados."
                   : "No hay programas disponibles"}
               </h3>
