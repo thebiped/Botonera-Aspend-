@@ -18,7 +18,10 @@ function Biblioteca({ user, apiUrl }) {
   const [editingId, setEditingId] = useState(null);
   const [currentlyPlaying, setCurrentlyPlaying] = useState(null);
 
-  const canEdit = user && (user.tipo === "admin" || user.tipo === "operador");
+  const canEdit =
+    user.tipo === "admin" ||
+    user.tipo === "operador" ||
+    user.tipo === "productor";
 
   useEffect(() => {
     fetchSonidos();
@@ -77,9 +80,14 @@ function Biblioteca({ user, apiUrl }) {
   };
 
   const handleDelete = async (id) => {
+    if (!canEdit) return alert("No tienes permisos para eliminar sonidos.");
     if (!confirm("¿Estás seguro de eliminar este sonido?")) return;
     try {
-      const res = await fetch(`${apiUrl}/sonidos/${id}`, { method: "DELETE" });
+      // 🚨 Cambio clave: Se añade el id_usuario como Query Parameter a la URL
+      const res = await fetch(`${apiUrl}/sonidos/${id}?id_usuario=${user.id}`, {
+        method: "DELETE", // No se necesita 'body' si se usa Query Parameter
+      });
+
       if (res.ok) fetchSonidos();
       else {
         const data = await res.json();

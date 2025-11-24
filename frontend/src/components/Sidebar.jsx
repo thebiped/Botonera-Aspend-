@@ -42,9 +42,17 @@ function Sidebar({ user, activeTab, setActiveTab, onLogout }) {
         }
       );
     } else if (user.tipo === "productor") {
-      baseItems.push({ id: "programas", label: "Mis Programas", Icon: Radio });
+      // 👈 MODIFICACIÓN: Añadimos biblioteca e institucionales para el productor
+      baseItems.push(
+        { id: "biblioteca", label: "Biblioteca FX", Icon: Music },
+        { id: "programas", label: "Mis Programas", Icon: Radio },
+        {
+          id: "institucionales",
+          label: "Sonidos Institucionales",
+          Icon: Volume2,
+        }
+      );
     }
-
     return baseItems;
   };
 
