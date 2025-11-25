@@ -27,17 +27,26 @@ function Biblioteca({ user, apiUrl }) {
     fetchSonidos();
   }, []);
 
-  const fetchSonidos = async () => {
-    try {
-      const res = await fetch(`${apiUrl}/sonidos?id_usuario=${user.id}`);
-      const data = await res.json();
-      if (res.ok) setSonidos(data);
-    } catch (err) {
-      console.error("Error al obtener sonidos:", err);
-    } finally {
+const fetchSonidos = async () => {
+  const minDuration = 800; // ⏳ tiempo mínimo visible en ms (cambiálo a 1200 si querés)
+  const start = Date.now();
+
+  try {
+    const res = await fetch(`${apiUrl}/sonidos?id_usuario=${user.id}`);
+    const data = await res.json();
+    if (res.ok) setSonidos(data);
+  } catch (err) {
+    console.error("Error al obtener sonidos:", err);
+  } finally {
+    const elapsed = Date.now() - start;
+    const remaining = minDuration - elapsed;
+
+    setTimeout(() => {
       setLoading(false);
-    }
-  };
+    }, remaining > 0 ? remaining : 0);
+  }
+};
+
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -113,8 +122,14 @@ function Biblioteca({ user, apiUrl }) {
 
   const handlePlaySound = (sonido) => setCurrentlyPlaying(sonido);
 
-  if (loading)
-    return <div className="biblioteca-loading">Cargando sonidos...</div>;
+if (loading)
+  return (
+    <div className="biblioteca-loading">
+      <div className="biblioteca-spinner"></div>
+      <span>Cargando sonidos...</span>
+    </div>
+  );
+
 
   return (
     <div className="biblioteca-container">

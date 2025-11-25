@@ -104,7 +104,7 @@ function SonidosInstitucionales({ user, apiUrl }) {
   // ❌ LÍNEA ELIMINADA/COMENTADA: Esto hacía que el productor no viera nada.
   // if (user.tipo === "productor") return null; 
 
-  return (
+  return (      
     <div className="institucionales-container">
       <div className="institucionales-header">
         <h2>Programas institucionales</h2>
