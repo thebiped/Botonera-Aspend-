@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useEffect, useRef } from "react";
@@ -26,7 +27,7 @@ function Programas({ user, apiUrl }) {
 
   // Reproductor
   const [currentlyPlaying, setCurrentlyPlaying] = useState(null);
-
+  const [usuariosAsignados, setUsuariosAsignados] = useState([]);
   // Formulario nuevo/edición sonido
   const [nuevoSonido, setNuevoSonido] = useState({
     nombre_sonido: "",
@@ -131,22 +132,21 @@ function Programas({ user, apiUrl }) {
     }
   };
 
-  const handleShowSonidos = (programa) => {
-    setSelectedPrograma(programa);
-    // Inicializa el estado de edición del programa con los datos actuales
-    setEditingPrograma({
-      nombre: programa.nombre,
-      descripcion: programa.descripcion || "",
-      horario: programa.horario || "",
-    });
-    fetchProgramaSonidos(programa.id_programa);
-    setView("sounds");
-  };
+  const handleShowSonidos = async (programa) => {
+  setSelectedPrograma(programa);
+  setView("sounds");
 
-  // Esta función ahora solo establece el sonido que se va a reproducir, AudioPlayer se encarga del resto.
-  const handlePlaySound = (sonido) => {
-    setCurrentlyPlaying(sonido);
-  };
+  try {
+    const res = await fetch(`${apiUrl}/programas/${programa.id_programa}/usuarios`);
+    const data = await res.json();
+
+    setUsuariosAsignados(data.usuarios || []); // <--- IMPORTANTE
+  } catch (err) {
+    console.error(err);
+    setUsuariosAsignados([]);
+  }
+};
+
 
   // --- Manejo de Programas (CRUD) ---
 
@@ -218,7 +218,7 @@ function Programas({ user, apiUrl }) {
 
   // Función para eliminar el programa
   const handleDeletePrograma = async () => {
-    if (!canAdmin && !isOperador)
+    if (!canAdmin )
       return alert("No tienes permisos para eliminar programas.");
     if (!selectedPrograma) return;
 
@@ -429,25 +429,78 @@ function Programas({ user, apiUrl }) {
       alert(`Error al conectar con el servidor: ${err.message}`);
     }
   };
+  const openAsignarUsuarios = async (programa) => {
+  setSelectedPrograma(programa);
+
+  try {
+    const res = await fetch(
+      `${apiUrl}/programas/${programa.id_programa}/usuarios`
+    );
+    const data = await res.json();
+
+    setUsuariosAsignados(data); // <<--- CARGA REAL
+
+    setShowAsignarModal(true);
+  } catch (err) {
+    console.log(err);
+    alert("Error cargando usuarios asignados");
+  }
+};
 
   const handleAsignarUsuario = async (usuarioId) => {
-    try {
-      const res = await fetch(
-        `${apiUrl}/programas/${selectedPrograma.id_programa}/usuarios`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ id_usuario: usuarioId }),
-        }
-      );
-      const data = await res.json();
-      if (res.ok) alert("Usuario asignado correctamente");
-      else alert(data.error || "Error al asignar usuario");
-    } catch (err) {
-      console.error(err);
-      alert("No se pudo conectar al servidor");
+  try {
+    const res = await fetch(
+      `${apiUrl}/programas/${selectedPrograma.id_programa}/usuarios`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id_usuario: usuarioId }),
+      }
+    );
+
+    const data = await res.json();
+
+    if (res.ok) {
+      alert("Usuario asignado correctamente");
+
+      // ACTUALIZAR LISTA SIN VOLVER A ABRIR MODAL
+      setUsuariosAsignados(prev => [
+        ...prev,
+        { id_usuario: usuarioId }
+      ]);
+    } else {
+      alert(data.error || "Error al asignar usuario");
     }
-  };
+  } catch (err) {
+    console.error(err);
+    alert("No se pudo conectar al servidor");
+  }
+};
+
+  const handleDesasignarUsuario = async (usuarioId) => {
+  try {
+    const res = await fetch(
+      `${apiUrl}/programas/${selectedPrograma.id_programa}/usuarios/${usuarioId}`,
+      {
+        method: "DELETE",
+      }
+    );
+
+    if (res.ok) {
+      alert("Usuario desasignado correctamente");
+
+      setUsuariosAsignados(prev =>
+        prev.filter((u) => u.id_usuario !== usuarioId)
+      );
+    } else {
+      alert("Error al desasignar usuario");
+    }
+  } catch (err) {
+    console.error(err);
+    alert("No se pudo conectar al servidor");
+  }
+};
+
 
   // --- RENDER / Helpers ---
 
@@ -537,7 +590,7 @@ function Programas({ user, apiUrl }) {
                 </p>
               </div>
               {/* Los botones de AGREGAR/ASIGNAR/VER DETALLADA solo se muestran para Admin/Operador */}
-              {(canAdmin || isOperador) && (
+              {(canAdmin) && (
                 <div className="sonidos-view-actions">
                   {canAdmin && (
                     <button
@@ -572,6 +625,41 @@ function Programas({ user, apiUrl }) {
                   <button onClick={handleDeletePrograma} className="btn-delete">
                     Eliminar Programa
                   </button>
+                </div>
+              )}
+              {(isOperador) && (
+                <div className="sonidos-view-actions">
+                  {canAdmin && (
+                    <button
+                      onClick={() => {
+                        setShowAsignarModal(true);
+                        setActiveTab("usuarios");
+                      }}
+                      className="btn-asignar"
+                    >
+                      Asignar Usuarios
+                    </button>
+                  )}
+                  <button
+                    onClick={() => {
+                      setShowAsignarModal(true);
+                      setActiveTab("sonidos");
+                    }}
+                    className="btn-asignar"
+                  >
+                    Agregar Sonido
+                  </button>
+                  <button
+                    onClick={() => {
+                      setShowDetailModal(true); // [NUEVO] Abrir modal de detalle
+                      setDetailTab("sounds");
+                    }}
+                    className="btn-asignar"
+                  >
+                    Ver Lista Detallada
+                  </button>
+                  {/* [NUEVO] Botón de Eliminar Programa */}
+                  
                 </div>
               )}
             </div>
@@ -785,29 +873,47 @@ function Programas({ user, apiUrl }) {
                   )}
 
                   {/* LISTA USUARIOS */}
-                  {activeTab === "usuarios" && canAdmin && (
-                    <ul className="programas-usuarios-list">
-                      {usuarios
-                        .filter((u) => u.tipo !== "admin")
-                        .map((u) => (
-                          <li
-                            key={u.id_usuario}
-                            className="programas-usuario-item"
-                          >
-                            <div className="usuario-info">
-                              <h3 className="usuario-name">{u.n_usuario}</h3>
-                              <p className="usuario-rol">{u.tipo}</p>
-                            </div>
-                            <button
-                              className="usuario-btn-asignar"
-                              onClick={() => handleAsignarUsuario(u.id_usuario)}
-                            >
-                              Asignar
-                            </button>
-                          </li>
-                        ))}
-                    </ul>
-                  )}
+            {activeTab === "usuarios" && canAdmin && (
+            <ul className="programas-usuarios-list">
+              {usuarios
+                .filter((u) => u.tipo !== "admin")
+                .map((u) => {
+                  
+                  // 👉 Lista REAL de asignados
+                  const yaAsignado = usuariosAsignados.some(
+                    (as) => as.id_usuario === u.id_usuario
+                  );
+
+                  return (
+                    <li key={u.id_usuario} className="programas-usuario-item">
+                      <div className="usuario-info">
+                        <h3 className="usuario-name">{u.n_usuario}</h3>
+                        <p className="usuario-rol">{u.tipo}</p>
+                      </div>
+
+                      {/* BOTONES DINÁMICOS */}
+                      {yaAsignado ? (
+                        <button
+                          className="usuario-btn-desasignar"
+                          onClick={() => handleDesasignarUsuario(u.id_usuario)}
+                        >
+                          Quitar
+                        </button>
+                      ) : (
+                        <button
+                          className="usuario-btn-asignar"
+                          onClick={() => handleAsignarUsuario(u.id_usuario)}
+                        >
+                          Asignar
+                        </button>
+                      )}
+                    </li>
+                  );
+                })}
+            </ul>
+          )}
+
+
                 </div>
               </div>
             </div>

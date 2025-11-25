@@ -422,6 +422,17 @@
   transform: translateY(-2px);
 }
 
+.usuario-btn-desasignar{
+  background: #ff4d4d;
+  color: #fff;
+  border: none;
+  padding: 10px 16px;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
 /* Más lindo en móvil */
 @media (max-width: 480px) {
   .modal-content {
